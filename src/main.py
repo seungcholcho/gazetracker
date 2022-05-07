@@ -59,13 +59,6 @@ def eye(img,arr):
 
     #eye =  cv2.adaptiveThreshold(eye,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,333,25)
     #cv2.imshow("     ",eye )
-    cnts, hierarchy = cv2.findContours(eye,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-    if len(cnts) != 0:
-        c = max(cnts, key = cv2.contourArea)
-        (x,y),radius = cv2.minEnclosingCircle(c)
-        center =(int(x),int(y))
-        radius = int(radius)
-        cv2.circle(eye2,center,radius,(0,0,255),2)
 
     masked[min[1]:max[1],min[0]:max[0]] = eye2
     cv2.imshow("",eye)
