@@ -1,18 +1,28 @@
 import cv2
-import numpy as np
-import dlib
 
-class face_detector:
 
-    detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+is_working = True
+dev_port = 0
+working_ports = []
+available_ports = []
+while is_working:
+    camera = cv2.VideoCapture(dev_port)
+    if not camera.isOpened():
+        is_working = False
+        print("Port %s is not working." %dev_port)
+    else:
+        is_reading, img = camera.read()
+        w = camera.get(3)
+        h = camera.get(4)
+        if is_reading:
+            print("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+            working_ports.append(dev_port)
+        else:
+            print("Port %s for camera ( %s x %s) is present but does not reads." %(dev_port,h,w))
+            available_ports.append(dev_port)
+    dev_port +=1
+print(available_ports)
 
-    def __init__(self,frame):
-        self.frame = frame
-        self.gray_scale_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        self.face = detector(gray_scale_img)
+print(working_ports)
 
-    def showFace(frame):
-        x, y = face.left(), face.top()
-        x1, y1 = face.right(), face.bottom()
-        cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
+print(non_working_ports)
