@@ -3,16 +3,17 @@ import numpy as np
 import dlib
 
 cap = cv2.VideoCapture(0)
-#cap2 = cv2.VideoCapture(1)
-#cap3 = cv2.VideoCapture(2)
-
-#if(cap2.isOpened() == False):
-   # print("cap1 not available")
-#if(cap3.isOpened() == False):
- #   print("cap2 not available")
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+# switch to 1 after calibration
+calibrated = 0
+
+
+coordinates = []
+right_eye_coordinates = []
+left_eye_coordinates = []
 
 def mindetector(arr):
     min_x = 1000
@@ -91,49 +92,57 @@ def eye(img,arr):
     masked = cv2.cvtColor(masked, cv2.COLOR_GRAY2BGR)
     masked[min[1]:max[1],min[0]:max[0]] = output
 
-    return masked, x, y
-
-while True:
-    _, frame = cap.read()
-    frame = cv2.flip(frame,1)
-    #_, phonecam = cap3.read()
-    #cv2.imshow("phonecam",phonecam)
-
-    grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = detector(grayscale)
-
-    for face in faces:
-        landmarks = predictor(grayscale,face)
-
-        #rightline = cv2.line(frame,left_top,left_bottom,(0,255,0),2)
-        #leftline = cv2.line(frame, right_top, right_bottom, (0, 255, 0), 2)
-
-        left_eye = np.array([ [landmarks.part(36).x , landmarks.part(36).y],
-                                        [landmarks.part(37).x, landmarks.part(37).y],
-                                        [landmarks.part(38).x, landmarks.part(38).y],
-                                        [landmarks.part(39).x, landmarks.part(39).y],
-                                        [landmarks.part(40).x, landmarks.part(40).y],
-                                        [landmarks.part(41).x, landmarks.part(41).y],
-                                        ],np.int32)
-        right_eye = np.array([ [landmarks.part(42).x , landmarks.part(42).y],
-                                        [landmarks.part(43).x, landmarks.part(43).y],
-                                        [landmarks.part(44).x, landmarks.part(44).y],
-                                        [landmarks.part(45).x, landmarks.part(45).y],
-                                        [landmarks.part(46).x, landmarks.part(46).y],
-                                        [landmarks.part(47).x, landmarks.part(47).y],
-                                        ],np.int32)
-
-        right_Eye, rx, ry = eye(frame,right_eye)
-        left_Eye, lx, ly = eye(frame,left_eye)
-        eyes = cv2.bitwise_or(right_Eye,left_Eye)
-
-        print("coord of right pupil: ",rx,", ",ry)
-        print("coord of left pupil: ",lx,",",ly)
-
-        cv2.imshow("frame",frame)
-        cv2.imshow("eyes",eyes)
+    return masked, int(x), int(y)
 
 
-    key = cv2.waitKey(1)
-    if key == 27:
-        break
+def pupil_coordinates():
+    global _, frame, key
+    while True:
+        _, frame = cap.read()
+        frame = cv2.flip(frame, 1)
+        # _, phonecam = cap3.read()
+        # cv2.imshow("phonecam",phonecam)
+
+        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(grayscale)
+
+        for face in faces:
+            landmarks = predictor(grayscale, face)
+
+            # rightline = cv2.line(frame,left_top,left_bottom,(0,255,0),2)
+            # leftline = cv2.line(frame, right_top, right_bottom, (0, 255, 0), 2)
+
+            left_eye = np.array([[landmarks.part(36).x, landmarks.part(36).y],
+                                 [landmarks.part(37).x, landmarks.part(37).y],
+                                 [landmarks.part(38).x, landmarks.part(38).y],
+                                 [landmarks.part(39).x, landmarks.part(39).y],
+                                 [landmarks.part(40).x, landmarks.part(40).y],
+                                 [landmarks.part(41).x, landmarks.part(41).y],
+                                 ], np.int32)
+            right_eye = np.array([[landmarks.part(42).x, landmarks.part(42).y],
+                                  [landmarks.part(43).x, landmarks.part(43).y],
+                                  [landmarks.part(44).x, landmarks.part(44).y],
+                                  [landmarks.part(45).x, landmarks.part(45).y],
+                                  [landmarks.part(46).x, landmarks.part(46).y],
+                                  [landmarks.part(47).x, landmarks.part(47).y],
+                                  ], np.int32)
+            _coordinates = []
+            right_Eye, rx, ry = eye(frame, right_eye)
+            left_Eye, lx, ly = eye(frame, left_eye)
+            eyes = cv2.bitwise_or(right_Eye, left_Eye)
+            _coordinates.append((rx,ry,lx,ly))
+            print("coord of right pupil: ", rx, ", ", ry)
+            print("coord of left pupil: ", lx, ",", ly)
+
+            cv2.imshow("frame", frame)
+            cv2.imshow("eyes", eyes)
+
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+    return _coordinates
+
+
+coordinates = pupil_coordinates()
+
+print (coordinates)
