@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import dlib
+import mouse
 
 cap = cv2.VideoCapture(0)
 
@@ -45,7 +46,9 @@ def maxdetector(arr):
 
 #이진화된 eye(GrayScale)와 출력할 화면(BGR)을 전달받는다. 동공의 좌표를 반환한다.
 def pupildetector(eye):
-
+    x = 0
+    y = 0
+    radius = 0
     output = cv2.cvtColor(eye,cv2.COLOR_GRAY2BGR)
     cnts, thierarchy = cv2.findContours(eye,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -72,10 +75,11 @@ def eye(img,arr):
     masked = cv2.bitwise_and(frame, mask)
     masked = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
 
-    if(min[1]+6>=max[1]):
+    '''if(min[1]+6>=max[1]):
         temp = min[1]
     else:
-        temp = min[1]+6
+        temp = min[1]+6'''
+
     eye = masked[min[1]:max[1],min[0]:max[0]]
     eye = cv2.bitwise_not(eye)
 
@@ -84,19 +88,20 @@ def eye(img,arr):
     _,eye = cv2.threshold(eye,0,255,cv2.THRESH_BINARY|cv2.THRESH_OTSU)
 
     #침식을 통한 세선화..?
-    kernel_size_row = 3
-    kernel_size_col = 3
-    kernel = np.ones((3, 3), np.uint8)
-    eye = cv2.erode(eye, kernel, iterations=1)
 
+    kernel = np.ones((3,3), np.uint8)
+    #cv2.imshow("before erode", eye)
+    eye = cv2.erode(eye, kernel, iterations=3)
+    eye = cv2.dilate(eye, kernel, iterations=1)
+    #cv2.imshow("after erode",eye)
     x,y,r = pupildetector(eye)
-    #x,y,r = pupildetector(eye)
+
 
     #동공좌표 찍기
     output = eye
     output = cv2.cvtColor(eye, cv2.COLOR_GRAY2BGR)
     #cv2.circle(output, (int(x),int(y)), r, (255, 0, 0), 2)
-    #cv2.circle(output, (int(x),int(y)), 1, (255, 0, 0), 1)
+    cv2.circle(output, (int(x),int(y)), 1, (255, 0, 0), 1)
 
     masked = cv2.cvtColor(masked, cv2.COLOR_GRAY2BGR)
     masked[min[1]:max[1],min[0]:max[0]] = output
@@ -110,16 +115,14 @@ def pupil_coordinates():
     LX = []
     LY = []
     while True:
-
         _, frame = cap.read()
         frame = cv2.flip(frame, 1)
-        # _, phonecam = cap3.read()
-        # cv2.imshow("phonecam",phonecam)
+
 
         grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = detector(grayscale)
-
         for face in faces:
+
             landmarks = predictor(grayscale, face)
             left_eye = np.array([[landmarks.part(36).x, landmarks.part(36).y],
                                  [landmarks.part(37).x, landmarks.part(37).y],
@@ -138,26 +141,60 @@ def pupil_coordinates():
             right_Eye, rx, ry = eye(frame, right_eye)
             left_Eye, lx, ly = eye(frame, left_eye)
             eyes = cv2.bitwise_or(right_Eye, left_Eye)
+            temp = cv2.bitwise_or(eyes,frame)
             if calibrated == 0:
                 RX.append(rx)
                 RY.append(ry)
                 LX.append(lx)
                 LY.append(ly)
             else:
-                if((rx>=right_gaze.avgRX) and (lx>=right_gaze.avgLX)):
-                    print("gazing right side of the screen")
-                elif((rx<=left_gaze.avgRX) and (lx<=left_gaze.avgLX)):
-                    print("gazing left side of the screen")
-                else:
-                    print("gazing center of the screen")
+                '''
+                if (ry > center_gaze.avgRY) and (ly > center_gaze.avgLY):
+                    print("up")
+                elif (ry < center_gaze.avgRY) and (ly < center_gaze.avgLY):
+                    print("down")
 
+            '''
 
+                if(rx>center_gaze.avgRX)and(lx>center_gaze.avgLX)and(ry>center_gaze.avgRY)and(ly>center_gaze.avgLY):
+                    print("_____________________________________________________________________________")
+                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
+                          center_gaze.avgRY)
+                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
+                    print("upper right")
+                    mouse.move(1340,270, absolute=True, duration=0)
+
+                elif(rx<center_gaze.avgRX)and(lx<center_gaze.avgLX)and(ry>center_gaze.avgRY)and(ly>center_gaze.avgLY):
+                    print("_____________________________________________________________________________")
+                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
+                          center_gaze.avgRY)
+                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
+                    print("upper left")
+                    mouse.move(480,270, absolute=True, duration=0)
+
+                elif (rx < center_gaze.avgRX) and (lx < center_gaze.avgLX) and (ry < center_gaze.avgRY) and (ly < center_gaze.avgLY):
+                    print("_____________________________________________________________________________")
+                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
+                          center_gaze.avgRY)
+                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
+                    print("lower left")
+                    mouse.move(480,810, absolute=True, duration=0)
+
+                elif (rx > center_gaze.avgRX) and (lx > center_gaze.avgLX) and (ry < center_gaze.avgRY) and (
+                        ly < center_gaze.avgLY):
+                    print("_____________________________________________________________________________")
+                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
+                          center_gaze.avgRY)
+                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
+                    print("lower right")
+                    mouse.move(1340,810, absolute=True, duration=0)
 
             cv2.imshow("frame", frame)
-            #cv2.imshow("eyes", eyes)
+            cv2.imshow("eyes", eyes)
+            cv2.imshow("      ",temp)
 
         key = cv2.waitKey(1)
-        if key == 27:
+        if key == 27 or key == 'x':
             break
     return RX, RY, LX, LY
 
@@ -182,37 +219,14 @@ class calibrator():
 
 print("CAUTION: don't move your head!")
 
+pupil_coordinates()
 
 input('press any key to start!')
-print("gaze center!***************")
+print("gaze center left!***************")
 input('press any key when you are ready...')
 print("calibrating....")
 RX, RY, LX, LY = pupil_coordinates()
 center_gaze = calibrator(RX, RY, LX, LY)
-print("avg of RX: ", center_gaze.avgRX)
-print("avg of RY: ", center_gaze.avgRY)
-print("avg of LX: ", center_gaze.avgLX)
-print("avg of RY: ", center_gaze.avgRY)
-
-print("gaze left!***************")
-input('press any key when you are ready...')
-print("calibrating....")
-RX, RY, LX, LY = pupil_coordinates()
-left_gaze = calibrator(RX, RY, LX, LY)
-print("avg of RX: ", left_gaze.avgRX)
-print("avg of RY: ", left_gaze.avgRY)
-print("avg of LX: ", left_gaze.avgLX)
-print("avg of RY: ", left_gaze.avgRY)
-
-print("gaze right!***************")
-input('press any key when you are ready...')
-print("calibrating....")
-RX, RY, LX, LY = pupil_coordinates()
-right_gaze = calibrator(RX, RY, LX, LY)
-print("avg of RX: ", right_gaze.avgRX)
-print("avg of RY: ", right_gaze.avgRY)
-print("avg of LX: ", right_gaze.avgLX)
-print("avg of RY: ", right_gaze.avgRY)
 
 
 calibrated = 1
