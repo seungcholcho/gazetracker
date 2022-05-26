@@ -57,7 +57,7 @@ def pupildetector(eye):
         (x,y),radius = cv2.minEnclosingCircle(c)
         center = (int(x),int(y))
         radius = int(radius)
-        cv2.circle(output,center,1,(255,0,0),2)
+        cv2.circle(output,center,1,(255,0,0),1)
         output = cv2.resize(output,(0,0),fx=10,fy=10,interpolation= cv2.INTER_AREA)
         #print(x,y)
         cv2.imshow("pupil detected",output)
@@ -91,7 +91,7 @@ def eye(img,arr):
 
     kernel = np.ones((3,3), np.uint8)
     #cv2.imshow("before erode", eye)
-    eye = cv2.erode(eye, kernel, iterations=3)
+    eye = cv2.erode(eye, kernel, iterations=5)
     eye = cv2.dilate(eye, kernel, iterations=1)
     #cv2.imshow("after erode",eye)
     x,y,r = pupildetector(eye)
@@ -148,15 +148,12 @@ def pupil_coordinates():
                 LX.append(lx)
                 LY.append(ly)
             else:
-                '''
-                if (ry > center_gaze.avgRY) and (ly > center_gaze.avgLY):
-                    print("up")
-                elif (ry < center_gaze.avgRY) and (ly < center_gaze.avgLY):
-                    print("down")
+                i = float(rx) - center_gaze.avgRX
+                j = float(ry) - center_gaze.avgRY
+                k = float(lx) - center_gaze.avgLX
+                l = float(ly) - center_gaze.avgLY
 
-            '''
-
-                if(rx>center_gaze.avgRX)and(lx>center_gaze.avgLX)and(ry>center_gaze.avgRY)and(ly>center_gaze.avgLY):
+                if((i>0)and(j<0)and(k>0)and(l<0)):
                     print("_____________________________________________________________________________")
                     print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
                           center_gaze.avgRY)
@@ -164,7 +161,7 @@ def pupil_coordinates():
                     print("upper right")
                     mouse.move(1340,270, absolute=True, duration=0)
 
-                elif(rx<center_gaze.avgRX)and(lx<center_gaze.avgLX)and(ry>center_gaze.avgRY)and(ly>center_gaze.avgLY):
+                elif((i<0)and(j<0)and(k<0)and(l<0)):
                     print("_____________________________________________________________________________")
                     print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
                           center_gaze.avgRY)
@@ -172,7 +169,7 @@ def pupil_coordinates():
                     print("upper left")
                     mouse.move(480,270, absolute=True, duration=0)
 
-                elif (rx < center_gaze.avgRX) and (lx < center_gaze.avgLX) and (ry < center_gaze.avgRY) and (ly < center_gaze.avgLY):
+                elif  ((i<0)and(j>0)and(k<0)and(l>0)):
                     print("_____________________________________________________________________________")
                     print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
                           center_gaze.avgRY)
@@ -180,8 +177,7 @@ def pupil_coordinates():
                     print("lower left")
                     mouse.move(480,810, absolute=True, duration=0)
 
-                elif (rx > center_gaze.avgRX) and (lx > center_gaze.avgLX) and (ry < center_gaze.avgRY) and (
-                        ly < center_gaze.avgLY):
+                elif ((i>0)and(j>0)and(k>0)and(l>0)):
                     print("_____________________________________________________________________________")
                     print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
                           center_gaze.avgRY)
@@ -219,16 +215,30 @@ class calibrator():
 
 print("CAUTION: don't move your head!")
 
-pupil_coordinates()
 
-input('press any key to start!')
-print("gaze center left!***************")
+#input('press any key to start!')
+print("gaze center ***************")
 input('press any key when you are ready...')
 print("calibrating....")
 RX, RY, LX, LY = pupil_coordinates()
 center_gaze = calibrator(RX, RY, LX, LY)
 
+print("gaze up ***************")
+input('press any key when you are ready...')
+print("calibrating....")
+RX, RY, LX, LY = pupil_coordinates()
+up_gaze = calibrator(RX, RY, LX, LY)
+
+print("gaze down ***************")
+input('press any key when you are ready...')
+print("calibrating....")
+RX, RY, LX, LY = pupil_coordinates()
+down_gaze = calibrator(RX, RY, LX, LY)
 
 calibrated = 1
 
-pupil_coordinates()
+
+print(up_gaze.avgLX," ",up_gaze.avgLY," ",up_gaze.avgRX," ",up_gaze.avgRY)
+print(down_gaze.avgLX," ",down_gaze.avgLY," ",down_gaze.avgRX," ",down_gaze.avgRY)
+
+#pupil_coordinates()
