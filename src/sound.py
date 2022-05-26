@@ -45,8 +45,8 @@ tk.title("생각마우스")
 tk.geometry("800x600")
 
 # for문 j는 반복 set 변수. i는 1set에 수행하는 횟수 변수.
-# Task : 1번씩 25set. 중간에 10초 휴식. countdown 시간 1-5초 랜덤.
-for j in range(3):
+# Task : 1번씩 15set. 중간에 7초 휴식. countdown 시간 1-5초 랜덤.
+for j in range(15):
     print(j + 1, "set")
     for i in range(1):
         k = random.randint(1, 5)  # k는 카운트 시간. 1-5초 랜덤.
