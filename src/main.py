@@ -1,244 +1,197 @@
+from src.eye_detector.Calculator import Calculator
+from src.eye_detector.Calibrator import Calibrator
+from src.eye_detector.PupilCoords import PupilCoords
+
 import cv2
-import numpy as np
 import dlib
 import mouse
 
+try:
+    import Tkinter as tk
+except:
+    import tkinter as tk
+from PIL import Image, ImageTk
+
+
+centerCalibrate = Calibrator()
+leftCalibrate = Calibrator()
+rightCalibrate = Calibrator()
+
+calc = Calculator()
+fd = PupilCoords()
 cap = cv2.VideoCapture(0)
 
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+class SampleApp(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+        self._frame = None
+        self.switch_frame(StartPage)
 
-# switch to 1 after calibration
-calibrated = 0
+    def switch_frame(self, frame_class):
+        new_frame = frame_class(self)
+        if self._frame is not None:
+            self._frame.destroy()
+        self._frame = new_frame
+        self._frame.pack()
 
-RX = []
-RY = []
-LX = []
-LY = []
+class StartPage(tk.Frame):
 
-right_eye_coordinates = []
-left_eye_coordinates = []
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
 
-def mindetector(arr):
-    min_x = 1000
-    min_y = 1000
-    for x in range(0, 5):
-        temp_x = arr[x][0]
-        temp_y = arr[x][1]
-        if (temp_x < min_x):
-            min_x = temp_x
-        elif (temp_y < min_y):
-            min_y = temp_y
-    return (min_x,min_y)
-
-def maxdetector(arr):
-    max_x = 0
-    max_y = 0
-    for x in range(0, 5):
-        temp_x = arr[x][0]
-        temp_y = arr[x][1]
-        if (temp_x > max_x):
-            max_x = temp_x
-        elif (temp_y > max_y):
-            max_y = temp_y
-
-    return (max_x,max_y)
-
-#이진화된 eye(GrayScale)와 출력할 화면(BGR)을 전달받는다. 동공의 좌표를 반환한다.
-def pupildetector(eye):
-    x = 0
-    y = 0
-    radius = 0
-    output = cv2.cvtColor(eye,cv2.COLOR_GRAY2BGR)
-    cnts, thierarchy = cv2.findContours(eye,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    if len(cnts) != 0:
-        c = max(cnts,key = cv2.contourArea)
-        (x,y),radius = cv2.minEnclosingCircle(c)
-        center = (int(x),int(y))
-        radius = int(radius)
-        cv2.circle(output,center,1,(255,0,0),1)
-        output = cv2.resize(output,(0,0),fx=10,fy=10,interpolation= cv2.INTER_AREA)
-        #print(x,y)
-        cv2.imshow("pupil detected",output)
-    #동공의 좌표 return
-    return x,y,radius
-
-#눈 영역을 검출하여 이진화 후 반환한다.
-def eye(img,arr):
-    min = mindetector(arr)
-    max = maxdetector(arr)
-    mask = np.zeros_like(img)
-
-    kernel = np.ones((1,1),np.uint8)
-    cv2.rectangle(mask, min, max, (255, 255, 255), -1)
-    masked = cv2.bitwise_and(frame, mask)
-    masked = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-
-    '''if(min[1]+6>=max[1]):
-        temp = min[1]
-    else:
-        temp = min[1]+6'''
-
-    eye = masked[min[1]:max[1],min[0]:max[0]]
-    eye = cv2.bitwise_not(eye)
-
-    #cv2.imshow("before binarize", eye)
-    #이진화
-    _,eye = cv2.threshold(eye,0,255,cv2.THRESH_BINARY|cv2.THRESH_OTSU)
-
-    #침식을 통한 세선화..?
-
-    kernel = np.ones((3,3), np.uint8)
-    #cv2.imshow("before erode", eye)
-    eye = cv2.erode(eye, kernel, iterations=5)
-    eye = cv2.dilate(eye, kernel, iterations=1)
-    #cv2.imshow("after erode",eye)
-    x,y,r = pupildetector(eye)
+        tk.Label(self, text="ThinkMouse", font=('Helvetica', 50, "bold")).pack(side="top", fill="y", pady=50)
+        self.image = Image.open('thinkmouse.png')
+        self.image = self.image.resize((500,500))
+        self.tkimg = ImageTk.PhotoImage(self.image)
+        _label = tk.Label(self, text="thinkmouse", image=self.tkimg)
+        _label.pack(pady = 30)
+        tk.Button(self, text="Start!",
+                  command=lambda: master.switch_frame(CameraCheck)).pack(pady = 20)
+        tk.Button(self, text="Go to page two",
+                  command=lambda: master.switch_frame(PageTwo)).pack(pady = 20)
 
 
-    #동공좌표 찍기
-    output = eye
-    output = cv2.cvtColor(eye, cv2.COLOR_GRAY2BGR)
-    #cv2.circle(output, (int(x),int(y)), r, (255, 0, 0), 2)
-    cv2.circle(output, (int(x),int(y)), 1, (255, 0, 0), 1)
+class CameraCheck(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        endbutton = tk.Button(self, text="goto calibrating page",
+                  command=lambda: master.switch_frame(CalibratingPage))
+        tk.Label(self, text = "주의사항!", font=("나눔고딕", 30, "bold")).pack()
+        tk.Label(self, text = "1. 머리를 움직이지 마세요!").pack()
+        tk.Label(self, text = "2. etc...").pack()
+        endbutton.pack()
 
-    masked = cv2.cvtColor(masked, cv2.COLOR_GRAY2BGR)
-    masked[min[1]:max[1],min[0]:max[0]] = output
+        #endbutton.place(x= 100,y=100)
+        self.show_frames()
 
-    return masked, int(x), int(y)
-
-def pupil_coordinates():
-    global _, frame, key
-    RX = []
-    RY = []
-    LX = []
-    LY = []
-    while True:
-        _, frame = cap.read()
+    def Camera(self):
+        frame = cap.read()[1]
         frame = cv2.flip(frame, 1)
+        eye_frame, coords = fd.pupil_coords(frame)
+
+        cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        img = Image.fromarray(cv2image)
+        # Convert image to PhotoImage
+        imgtk = ImageTk.PhotoImage(image=img)
+        return imgtk, coords
+
+    def show_frames(self):
+        label = tk.Label(self)
+        img,coords = self.Camera()
+        label.imgtk = img
+        label.configure(image=img)
+        print(coords)
+        label.pack()
+        label.after(10, self.show_frames)
+        #Repeat after an interval to capture continiously
+
+class CalibratingCenter(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        #tk.Label(self, text="Gaze Center", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        #tk.Button(self, text="Click When Complete!", command=lambda: master.switch_frame(CalibratingPage)).pack()
+        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold") ,command = lambda: self.Calibrate())
+        self.center_text.pack()
 
 
-        grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = detector(grayscale)
-        for face in faces:
+    def Calibrate(self):
+        while(centerCalibrate.isCalibrated == False):
+            frame = cap.read()[1]
+            frame = cv2.flip(frame, 1)
+            eye_frame, coords = fd.pupil_coords(frame)
+            centerCalibrate.calibrate(coords)
 
-            landmarks = predictor(grayscale, face)
-            left_eye = np.array([[landmarks.part(36).x, landmarks.part(36).y],
-                                 [landmarks.part(37).x, landmarks.part(37).y],
-                                 [landmarks.part(38).x, landmarks.part(38).y],
-                                 [landmarks.part(39).x, landmarks.part(39).y],
-                                 [landmarks.part(40).x, landmarks.part(40).y],
-                                 [landmarks.part(41).x, landmarks.part(41).y],
-                                 ], np.int32)
-            right_eye = np.array([[landmarks.part(42).x, landmarks.part(42).y],
-                                  [landmarks.part(43).x, landmarks.part(43).y],
-                                  [landmarks.part(44).x, landmarks.part(44).y],
-                                  [landmarks.part(45).x, landmarks.part(45).y],
-                                  [landmarks.part(46).x, landmarks.part(46).y],
-                                  [landmarks.part(47).x, landmarks.part(47).y],
-                                  ], np.int32)
-            right_Eye, rx, ry = eye(frame, right_eye)
-            left_Eye, lx, ly = eye(frame, left_eye)
-            eyes = cv2.bitwise_or(right_Eye, left_Eye)
-            temp = cv2.bitwise_or(eyes,frame)
-            if calibrated == 0:
-                RX.append(rx)
-                RY.append(ry)
-                LX.append(lx)
-                LY.append(ly)
-            else:
-                i = float(rx) - center_gaze.avgRX
-                j = float(ry) - center_gaze.avgRY
-                k = float(lx) - center_gaze.avgLX
-                l = float(ly) - center_gaze.avgLY
-
-                if((i>0)and(j<0)and(k>0)and(l<0)):
-                    print("_____________________________________________________________________________")
-                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
-                          center_gaze.avgRY)
-                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
-                    print("upper right")
-                    mouse.move(1340,270, absolute=True, duration=0)
-
-                elif((i<0)and(j<0)and(k<0)and(l<0)):
-                    print("_____________________________________________________________________________")
-                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
-                          center_gaze.avgRY)
-                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
-                    print("upper left")
-                    mouse.move(480,270, absolute=True, duration=0)
-
-                elif  ((i<0)and(j>0)and(k<0)and(l>0)):
-                    print("_____________________________________________________________________________")
-                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
-                          center_gaze.avgRY)
-                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
-                    print("lower left")
-                    mouse.move(480,810, absolute=True, duration=0)
-
-                elif ((i>0)and(j>0)and(k>0)and(l>0)):
-                    print("_____________________________________________________________________________")
-                    print("avg LX,LY: ", center_gaze.avgLX, center_gaze.avgLY, "avg RX,RY: ", center_gaze.avgRX,
-                          center_gaze.avgRY)
-                    print("(LX,LY): ", lx, ly, " (RX,RY): ", rx, ry)
-                    print("lower right")
-                    mouse.move(1340,810, absolute=True, duration=0)
-
-            cv2.imshow("frame", frame)
-            cv2.imshow("eyes", eyes)
-            cv2.imshow("      ",temp)
-
-        key = cv2.waitKey(1)
-        if key == 27 or key == 'x':
-            break
-    return RX, RY, LX, LY
-
-def avg(arr):
-    sum = 0
-    for i in arr:
-        sum += i
-    avg = sum/len(arr)
-    return avg
-
-class calibrator():
-    def __init__(self,RX,RY,LX,LY):
-        self.RX = RX
-        self.RY = RY
-        self.LX = LX
-        self.LY = LY
-        self.avgRX = avg(RX)
-        self.avgRY = avg(RY)
-        self.avgLX = avg(LX)
-        self.avgLY = avg(LY)
+        print("calibration Complete!")
+        print(centerCalibrate.avgLX, centerCalibrate.avgLY, centerCalibrate.avgRX, centerCalibrate.avgRY)
+        #self.newbutton = tk.Button(self, text="Calibration Done! continue to Left Calibration!", font=('Helvetica', 50, "bold") ,command = lambda: self.master.switch_frame(CalibratingLeft))
+        self.newbutton = tk.Button(self, text="Calibration Done! continue to Left control your Cursor!", font=('Helvetica', 50, "bold") ,command=lambda: self.master.switch_frame(MouseControlPage))
 
 
-print("CAUTION: don't move your head!")
+        self.newbutton.pack()
+
+class CalibratingLeft(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        # tk.Label(self, text="Gaze Center", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        # tk.Button(self, text="Click When Complete!", command=lambda: master.switch_frame(CalibratingPage)).pack()
+        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold"), command=lambda: self.Calibrate())
+        self.center_text.pack(side = "top", anchor = "center")
+
+    def Calibrate(self):
+        while (leftCalibrate.isCalibrated == False):
+            frame = cap.read()[1]
+            frame = cv2.flip(frame, 1)
+            eye_frame, coords = fd.pupil_coords(frame)
+            leftCalibrate.calibrate(coords)
+
+        print("calibration Complete!")
+        print(leftCalibrate.avgLX, leftCalibrate.avgLY, leftCalibrate.avgRX, leftCalibrate.avgRY)
+        self.newbutton = tk.Button(self, text="Calibration Done! continue to Right Calibration!",
+                                   font=('Helvetica', 50, "bold"),
+                                   command=lambda: self.master.switch_frame(CalibratingRight))
+        self.newbutton.pack(side="left",anchor = "center")
+
+class CalibratingRight(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold"), command=lambda: self.Calibrate())
+        self.center_text.pack()
+
+    def Calibrate(self):
+        while (rightCalibrate.isCalibrated == False):
+            frame = cap.read()[1]
+            frame = cv2.flip(frame, 1)
+            eye_frame, coords = fd.pupil_coords(frame)
+            rightCalibrate.calibrate(coords)
+
+        print("calibration Complete!")
+        print(rightCalibrate.avgLX, rightCalibrate.avgLY, rightCalibrate.avgRX, rightCalibrate.avgRY)
+        self.newbutton = tk.Button(self, text="Calibration Done! continue to control your Cursor!!",
+                                   font=('Helvetica', 50, "bold"),
+                                   command=lambda: self.master.switch_frame(MouseControlPage))
+        self.newbutton.pack()
 
 
-#input('press any key to start!')
-print("gaze center ***************")
-input('press any key when you are ready...')
-print("calibrating....")
-RX, RY, LX, LY = pupil_coordinates()
-center_gaze = calibrator(RX, RY, LX, LY)
+class CalibratingPage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, text="Page two", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Button(self, text="Calibrate Center",
+                  command=lambda: master.switch_frame(CalibratingCenter)).pack()
+        tk.Button(self, text = "Calibrate Left",command=lambda: master.switch_frame(CalibratingLeft)).pack()
+        tk.Button(self, text = "Calibrate Right",command=lambda: master.switch_frame(CalibratingRight)).pack()
+        tk.Button(self, text = "reset all settings",command=lambda:self.reset()).pack()
 
-print("gaze up ***************")
-input('press any key when you are ready...')
-print("calibrating....")
-RX, RY, LX, LY = pupil_coordinates()
-up_gaze = calibrator(RX, RY, LX, LY)
+    def reset(self):
+        centerCalibrate.reset()
+        leftCalibrate.reset()
+        rightCalibrate.reset()
 
-print("gaze down ***************")
-input('press any key when you are ready...')
-print("calibrating....")
-RX, RY, LX, LY = pupil_coordinates()
-down_gaze = calibrator(RX, RY, LX, LY)
+class MouseControlPage(tk.Frame):
+    def __init__(self, master):
+        frame = cap.read()[1]
+        frame = cv2.flip(frame, 1)
+        eye_frame, coords = fd.pupil_coords(frame)
 
-calibrated = 1
+        LX = coords[0]
+        LY = coords[1]
+        RX = coords[2]
+        RY = coords[3]
+
+        tk.Frame.__init__(self, master)
+        tk.Button(self, text="end control",command=lambda:master.switch_frame(StartPage)).pack()
+
+        while True:
+            if(LX<centerCalibrate.avgLX and RX<centerCalibrate.avgRX):
+                mouse.move(50,50,absolute=True)
+            elif(RX>centerCalibrate.avgRX and LX<centerCalibrate.avgLX):
+                mouse.move(100,100,absolute=False)
 
 
-print(up_gaze.avgLX," ",up_gaze.avgLY," ",up_gaze.avgRX," ",up_gaze.avgRY)
-print(down_gaze.avgLX," ",down_gaze.avgLY," ",down_gaze.avgRX," ",down_gaze.avgRY)
-
-#pupil_coordinates()
+if __name__ == "__main__":
+    app = SampleApp()
+    app.title("생각마우스")
+    app.geometry("1920x1080")
+    app.attributes('-fullscreen',True)
+    app.mainloop()
