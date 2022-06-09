@@ -9,7 +9,7 @@ start_time = datetime.datetime.now()
 
 # 클릭시간 저장할 배열.
 click_time=[]
-f = open("./seungchol/0603/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
+f = open("./seungchol/0609/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
 
 #f = open("./HyeJin/MMDD/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
 
