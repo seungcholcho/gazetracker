@@ -50,12 +50,11 @@ class SampleApp(tk.Tk):
 class StartPage(tk.Frame):
     def __init__(self, master):
         frame = tk.Frame.__init__(self, master)
-
         tk.Label(self, text="ThinkMouse", width= 1920,font=('Helvetica', 50, "bold")).pack(side="top", fill= 'x',pady=50)
         self.image = Image.open('thinkmouse.png')
         self.image = self.image.resize((500,500))
         self.tkimg = ImageTk.PhotoImage(self.image)
-        _label = tk.Label(self, text="thinkmouse", image=self.tkimg).pack(pady=50)
+        _label = tk.Label(self, text="thinkmouse", image=self.tkimg).pack()
         startbutton = tk.Button(self, text="Start!",font=('Helvetica', 30, "bold"),
                   command=lambda: master.switch_frame(CameraCheck)).pack(side="bottom",pady=50)
 
@@ -69,7 +68,7 @@ class CameraCheck(tk.Frame):
         text1 = tk.Label(self, text = "1. 머리를 움직이지 마세요!",font=("나눔고딕", 15)).pack()
         tk.Label(self, height=2, width=1920).pack(side="top", fill='x')
         text2 = tk.Label(self,font=("나눔고딕", 15), text = "2. etc...").pack()
-        tk.Label(self, height=40, width=1920).pack(side="top", fill='x')
+        tk.Label(self, height=20, width=1920).pack(side="top", fill='x')
         endbutton = tk.Button(self, text="goto calibrating page",font=('Helvetica', 30, "bold"),
                   command=lambda: master.switch_frame(CalibratingCenter)).pack(side="bottom")
 
