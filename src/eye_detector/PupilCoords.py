@@ -4,8 +4,6 @@ import numpy as np
 import dlib
 #import mediapipe as mp
 
-
-
 class PupilCoords():
     def __init__(self):
         self.detector = dlib.get_frontal_face_detector()

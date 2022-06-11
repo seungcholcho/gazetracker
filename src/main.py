@@ -37,9 +37,9 @@ class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
-        self.switch_frame(StartPage)
+        #self.switch_frame(StartPage)
         #self.switch_frame(Cali1)
-        #self.switch_frame(MouseControlPage)
+        self.switch_frame(MouseControlPage)
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
         if self._frame is not None:
@@ -55,7 +55,7 @@ class StartPage(tk.Frame):
         self.image = Image.open('thinkmouse.png')
         self.image = self.image.resize((500,500))
         self.tkimg = ImageTk.PhotoImage(self.image)
-        _label = tk.Label(self, text="thinkmouse", image=self.tkimg).pack(pady=50)
+        _label = tk.Label(self, text="thinkmouse", image=self.tkimg).pack()
         startbutton = tk.Button(self, text="Start!",font=('Helvetica', 30, "bold"),
                   command=lambda: master.switch_frame(CameraCheck)).pack(side="bottom",pady=50)
 
@@ -243,16 +243,18 @@ class MouseControlPage(tk.Frame):
         tk.Button(self, text="start control",command=lambda:self.start()).grid(row =0, column = 0)
         tk.Label(self, text="과목명", font=("나눔고딕", 15, "bold")).grid(row =1, column = 0)
         tk.Label(self, text="과목 1", font=("나눔고딕", 15, "bold")).grid(row =1, column = 1)
-        tk.Label(self, text="과목 2", font=("나눔고딕", 15, "bold")).grid(row =1, column = 2)
-        tk.Label(self, text="과목 3", font=("나눔고딕", 15, "bold")).grid(row=1, column=3)
+        tk.Label(self, text="                                                                   ", font=("나눔고딕", 15,)).grid(row=1, column=2)
+        tk.Label(self, text="과목 2", font=("나눔고딕", 15, "bold")).grid(row =1, column = 3)
+        tk.Label(self, text="                                                                   ", font=("나눔고딕", 15,)).grid(row=1, column=4)
+        tk.Label(self, text="과목 3", font=("나눔고딕", 15, "bold")).grid(row=1, column=5)
         tk.Label(self, text="학수번호", font=("나눔고딕", 15, "bold")).grid(row=2, column=0)
         tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
         tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
-
         tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=1)
         tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=2)
         tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=3)
-        self.after(1000, self.getPupil())
+
+        #self.after(1000, self.getPupil())
 
 
     def start(self):
