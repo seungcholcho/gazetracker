@@ -12,10 +12,6 @@ click_time=[]
 
 f = open(str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
 
-# f = open("./seungchol/0609/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
-
-#f = open("./HyeJin/MMDD/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
-
 # 클릭했을 때 시간기록
 def timecheck():
     current = datetime.datetime.now()
@@ -27,6 +23,7 @@ def timecheck():
 
 # ui에서 숫자 카운트 하는 함수
 def countdown2sound():
+
     global time
     global k
     global count
@@ -40,6 +37,7 @@ def countdown2sound():
     # print(time, count)
     tk.after(1000, countdown2sound)
     # tk.after(100, timecheck)
+
 
 # tkinter 구성
 tk = Tk()
@@ -60,7 +58,7 @@ for j in range(15):
         # label.place(x=350, y=50)  # 카운트
         tk.after(1000, countdown2sound)
 
-        button = Button(text="수강신청", bg='white', width=20, height=7, command=timecheck, font=("나눔고딕", 30, "bold"))
+        button = Button(text="예매하기", bg='white', width=20, height=7, command=timecheck, font=("나눔고딕", 30, "bold"))
         button.pack()
         button.place(x=150, y=150)  # 예매하기 버튼. 누르면 시간 기록.
 

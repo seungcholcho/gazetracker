@@ -19,7 +19,7 @@ f = open("C:/MAVE_RawData/"+file_name+"/Fp1_FFT.txt", "r")
 
 while True:
     realtime_df = pd.read_table("C:/MAVE_RawData/"+file_name+"/Fp1_FFT.txt",sep='\t',encoding = 'cp949')
-#     new_df = pd.DataFrame(data)
+#     new   _df = pd.DataFrame(data)
 #     line = f.readline().strip()
     print(realtime_df)
     print('-----')
