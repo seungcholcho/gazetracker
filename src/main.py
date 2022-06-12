@@ -321,10 +321,51 @@ class MouseControlPage(tk.Frame):
     def ERDERS(self):
         print("hello")
         # 마지막 x 행 만큼의 데이터를 불러옴
-        data = self.getData()
-        #read real time data
-        #read trained data
+        latest_data = self.getData()
+
+        # read real time data
+        # read trained data
+
+        # data preprocessing
+        latest_data['mu8-12'] = 0
+        latest_data['theta4-8'] = 0
+        latest_data['beta12-40'] = 0
+        for i in range(1, len(latest_data.columns) - 4):  # df.columns[i][:-2] -> 헤르츠 정보
+            # 마지막 컬럼 세개가 mu,theta,beta 여서 그거 제외한거(-4)
+
+            if float(latest_data.columns[i][:-2]) >= 8 and float(latest_data.columns[i][:-2]) < 12:  # 뮤파
+                latest_data['mu8-12'] += latest_data[latest_data.columns[i]]
+            elif float(latest_data.columns[i][:-2]) >= 4 and float(latest_data.columns[i][:-2]) < 8:  # 세타파
+                latest_data['theta4-8'] += latest_data[latest_data.columns[i]]
+            elif float(latest_data.columns[i][:-2]) >= 12 and float(latest_data.columns[i][:-2]) < 40:  # 베타파
+                latest_data['beta12-40'] += latest_data[latest_data.columns[i]]
+
+        # latest_data[latest_data.columns[-3:]] # 제일 끝 4초 동안의 mu8-12 / theta8-12 / beta 12-40
+        df_clean = latest_data[latest_data.columns[-3:]]
+
+        # 뮤 증감율/세타 증감율/베타 증감율 구하기
+        ref_mu = df_clean[0:2].mean()[0]
+        after_mu = df_clean[2:4].mean()[0]
+        ratio_mu = (after_mu - ref_mu) / ref_mu
+
+        ref_theta = df_clean[0:2].mean()[1]  # 앞에 3초 데이터
+        after_theta = df_clean[2:4].mean()[1]  # 클릭 포함 데이터
+        ratio_theta = (after_theta - ref_theta) / ref_theta
+
+        ref_beta = df_clean[0:2].mean()[2]  # 앞에 3초 데이터
+        after_beta = df_clean[2:4].mean()[2]  # 클릭 포함 데이터
+        ratio_beta = (after_beta - ref_beta) / ref_beta
+
+
         #check threshhold
+        if ratio_mu < 0 and ratio_theta < 0 and ratio_beta > 0:
+            # 조건을 일단은 크게 mu는 감소, theta는 감소, beta는 증가하면 이걸 클릭으로 판단하겠다고 정해놓은것.
+            # 보면서 조건이 수정되면 여기 값들을 바꿔주면 됨.
+            return True
+            # print('True')
+        else:
+            return False
+            # print('False')
 
     def getData(self):
         path = 'C:/MAVE_RawData/'
@@ -345,7 +386,7 @@ class MouseControlPage(tk.Frame):
                            encoding='cp949')
 
         # df.tail(int x)  마지막 x 행만큼의 데이터를 불러옴.
-        latest_data = df.tail(6)
+        latest_data = df.tail(4)
         return latest_data
 
 
