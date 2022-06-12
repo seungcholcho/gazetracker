@@ -5,6 +5,8 @@ from src.eye_detector.PupilCoords import PupilCoords
 import cv2
 import dlib
 import mouse
+import os
+import pandas as pd
 
 try:
     import Tkinter as tk
@@ -37,15 +39,26 @@ class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
-        #self.switch_frame(StartPage)
-        #self.switch_frame(Cali1)
-        self.switch_frame(MouseControlPage)
+
+        # 초기화면 설정..
+        #     화면 목록
+                # 0. StartPage: 시작 화면
+                # 1. CameraCheck: 주의사항 및 카메라 확인
+                # 2. CalibratingCenter
+                # 3. CalibratingLeft
+                # 4. CalibratingRight
+                # 5. MouseControlPage: 마우스 제어 페이지 // 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
+
+        self.switch_frame(StartPage)
+        #self.switch_frame(MouseControlPage)          #<<<< 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
+
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
         if self._frame is not None:
             self._frame.destroy()
         self._frame = new_frame
         self._frame.pack()
+
 
 class StartPage(tk.Frame):
     def __init__(self, master):
@@ -253,7 +266,7 @@ class MouseControlPage(tk.Frame):
         tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=2)
         tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=3)
 
-        #self.after(1000, self.getPupil())
+        self.after(1000, self.getPupil())
 
 
     def start(self):
@@ -287,16 +300,8 @@ class MouseControlPage(tk.Frame):
         elif gazewhere ==2:
             print("looking right")
             mouse.move(1440, 540, absolute=True, duration=0.2)
-        # if (LX < centerCalibrate.avgLX and RX < centerCalibrate.avgRX):
-        #     print("<<<looking left")
-        #     mouse.move(480, 540, absolute=True, duration=0.2)
-        # elif (RX > centerCalibrate.avgRX and LX > centerCalibrate.avgLX):
-        #     print("looking right>>>")
-        #     mouse.move(1440, 540, absolute=True, duration=0.2)
-        # else:
-        #     print("nothing found!")
-
         print("it checks the conditions")
+
     def getPupil(self):
         global condition
         if condition:
@@ -305,19 +310,43 @@ class MouseControlPage(tk.Frame):
             eye_frame, coords = fd.pupil_coords(frame)
             print("is looping? and checks the Conditions?")
             self.moveMouse(coords)
-            #self.clicker()
+            self.clicker()
             self.after(100,self.getPupil)
 
     def clicker(self):
         print("is ERD/ERS?")
+        self.ERDERS()
         #if ERD/ERS() ==True : mouse.click
 
     def ERDERS(self):
         print("hello")
+        # 마지막 x 행 만큼의 데이터를 불러옴
+        data = self.getData()
         #read real time data
         #read trained data
         #check threshhold
 
+    def getData(self):
+        path = 'C:/MAVE_RawData/'
+        file_list = os.listdir(path)
+
+        # 디렉토리에 파일이 저장되어있는 순서에 따라서 file_list의 순서가 바뀜
+        # 실제 파일에 정렬되어있는 순서와 다를 수 있으니 file_list 출력 확인할 것
+        # 가장 최근 데이터의 인덱스를 찾을 것.
+
+        print(file_list)
+        # 보통 마지막 인덱스에 가장 최근 파일이 저장되어있음.
+        latest_file = file_list[len(file_list)-1]
+
+        data_list = os.listdir(path+latest_file+'/')
+        data_path = path + latest_file + '/' + 'Fp1_FFT.txt'
+
+        df = pd.read_table(data_path, sep='\t',
+                           encoding='cp949')
+
+        # df.tail(int x)  마지막 x 행만큼의 데이터를 불러옴.
+        latest_data = df.tail(6)
+        return latest_data
 
 
 if __name__ == "__main__":
