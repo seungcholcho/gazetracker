@@ -7,6 +7,7 @@ import dlib
 import mouse
 import os
 import pandas as pd
+import random
 
 try:
     import Tkinter as tk
@@ -51,7 +52,7 @@ class SampleApp(tk.Tk):
 
         self.switch_frame(StartPage)
         #self.switch_frame(MouseControlPage)          #<<<< 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
-
+        #self.switch_frame(EndingPage)
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
         if self._frame is not None:
@@ -130,7 +131,7 @@ class CalibratingCenter(tk.Frame):
 
         print("calibration Complete!")
         print(centerCalibrate.avgLX, centerCalibrate.avgLY, centerCalibrate.avgRX, centerCalibrate.avgRY)
-        self.newbutton = tk.Button(self, text="Calibration Done! continue to Left control your Cursor!", font=('Helvetica', 50, "bold") ,command=lambda: self.master.switch_frame(CalibratingLeft))
+        self.newbutton = tk.Button(self, text="Calibration Done! continue to Left control your Cursor!", font=('Helvetica', 30, "bold") ,command=lambda: self.master.switch_frame(CalibratingLeft))
         self.newbutton.pack()
 
 class CalibratingLeft(tk.Frame):
@@ -140,7 +141,7 @@ class CalibratingLeft(tk.Frame):
         tk.Label(self, text="Gaze Left", font=('Helvetica', 18, "bold")).pack(side="top", fill="x")
         tk.Label(self, height = 23, width = 1920).pack(side ="top",fill='x')
 
-        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold") ,command = lambda: self.Calibrate())
+        self.center_text = tk.Button(self, text="X", font=('Helvetica', 30, "bold") ,command = lambda: self.Calibrate())
         self.center_text.pack(side="left")
 
     def Calibrate(self):
@@ -153,7 +154,7 @@ class CalibratingLeft(tk.Frame):
         print("calibration Complete!")
         print(leftCalibrate.avgLX, leftCalibrate.avgLY, leftCalibrate.avgRX, leftCalibrate.avgRY)
         self.newbutton = tk.Button(self, text="Calibration Done! continue to Right Calibration!",
-                                   font=('Helvetica', 50, "bold"),
+                                   font=('Helvetica', 30, "bold"),
                                    command=lambda: self.master.switch_frame(CalibratingRight))
         self.newbutton.pack(side="left",anchor = "center")
 
@@ -181,93 +182,21 @@ class CalibratingRight(tk.Frame):
                                    command=lambda: self.master.switch_frame(MouseControlPage))
         self.newbutton.pack()
 
-class Cali1(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold") ,command = lambda: self.Calibrate())
-        self.center_text.pack(anchor ="nw")
-
-    def Calibrate(self):
-        while(topLeft.isCalibrated == False):
-            frame = cap.read()[1]
-            frame = cv2.flip(frame, 1)
-            eye_frame, coords = fd.pupil_coords(frame)
-            topLeft.calibrate(coords)
-
-        print("calibration Complete!")
-        print(topLeft.avgLX, topLeft.avgLY, topLeft.avgRX, topLeft.avgRY)
-        self.newbutton = tk.Button(self, text="Calibration Done! continue!", font=('Helvetica', 50, "bold") ,command=lambda: self.master.switch_frame(Cali2))
-        self.newbutton.pack()
-
-class Cali2(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold") ,command = lambda: self.Calibrate())
-        self.center_text.pack()
-
-
-    def Calibrate(self):
-        while(topLeft.isCalibrated == False):
-            frame = cap.read()[1]
-            frame = cv2.flip(frame, 1)
-            eye_frame, coords = fd.pupil_coords(frame)
-            top.calibrate(coords)
-
-        print("calibration Complete!")
-        print(top.avgLX, top.avgLY, top.avgRX, top.avgRY)
-        self.newbutton = tk.Button(self, text="Calibration Done! continue to Left control your Cursor!", font=('Helvetica', 50, "bold") ,command=lambda: self.master.switch_frame(Cali3))
-        self.newbutton.pack()
-
-class Cali3(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        self.center_text = tk.Button(self, text="X", font=('Helvetica', 50, "bold"), command=lambda: self.Calibrate())
-        self.center_text.pack(anchor = "ne")
-
-    def Calibrate(self):
-        while (topLeft.isCalibrated == False):
-            frame = cap.read()[1]
-            frame = cv2.flip(frame, 1)
-            eye_frame, coords = fd.pupil_coords(frame)
-            top.calibrate(coords)
-
-        print("calibration Complete!")
-        print(top.avgLX, top.avgLY, top.avgRX, top.avgRY)
-        self.newbutton = tk.Button(self, text="Calibration Done! continue to Left control your Cursor!",
-                                   font=('Helvetica', 50, "bold"), command=lambda: self.master.switch_frame(Cali3))
-        self.newbutton.pack()
-
-
 condition = True
 clicks = 0
+initial = 0
+iter = 0
 
 class MouseControlPage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        self.resizable=(False,False)
+        self.after(1000, self.getPupil())
+
     def click(self):
         global clicks
         clicks = clicks + 1
         print(clicks)
-
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        self.resizable=(False,False)
-
-        tk.Button(self, text="stop control",command=lambda:self.stop()).grid(row =0, column = 1)
-        tk.Button(self, text="start control",command=lambda:self.start()).grid(row =0, column = 0)
-        tk.Label(self, text="과목명", font=("나눔고딕", 15, "bold")).grid(row =1, column = 0)
-        tk.Label(self, text="과목 1", font=("나눔고딕", 15, "bold")).grid(row =1, column = 1)
-        tk.Label(self, text="                                                                   ", font=("나눔고딕", 15,)).grid(row=1, column=2)
-        tk.Label(self, text="과목 2", font=("나눔고딕", 15, "bold")).grid(row =1, column = 3)
-        tk.Label(self, text="                                                                   ", font=("나눔고딕", 15,)).grid(row=1, column=4)
-        tk.Label(self, text="과목 3", font=("나눔고딕", 15, "bold")).grid(row=1, column=5)
-        tk.Label(self, text="학수번호", font=("나눔고딕", 15, "bold")).grid(row=2, column=0)
-        tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
-        tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
-        tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=1)
-        tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=2)
-        tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=5, column=3)
-
-        self.after(1000, self.getPupil())
-
 
     def start(self):
         global condition
@@ -293,33 +222,89 @@ class MouseControlPage(tk.Frame):
         print(dist)
         if gazewhere == 0:
             print("looking left")
-            mouse.move(480, 540, absolute=True, duration=0.2)
+            mouse.move(300, 660, absolute=True, duration=0.2)
         elif gazewhere ==1:
             print("looking center")
-            mouse.move(960, 540, absolute=True, duration=0.2)
+            mouse.move(960, 660, absolute=True, duration=0.2)
         elif gazewhere ==2:
             print("looking right")
-            mouse.move(1440, 540, absolute=True, duration=0.2)
-        print("it checks the conditions")
+            mouse.move(1800, 660, absolute=True, duration=0.2)
+
 
     def getPupil(self):
+        global initial
+        global clicks
+
+        master_width = 90
+        master_height = 20
+        random_list = [1,3,5]
+        random.shuffle(random_list)
+
+        if clicks > 0:
+            self.master.switch_frame(EndingPage)
+        if initial == 0:
+            tk.Label(self, text="과목명", font=("나눔고딕", 15, "bold")).grid(row=1, column=0)
+            tk.Label(self, width= 10).grid(row=1, column=0)
+            tk.Label(self, text="세계신화의\n이해", font=("나눔고딕", 15, "bold")).grid(row=1, column=1)
+            tk.Label(self, width = master_width-20).grid(row=1, column=2)
+            tk.Label(self, text="사고와표현", font=("나눔고딕", 15, "bold")).grid(row=1, column=3)
+            tk.Label(self, width = master_width+15).grid(row=1, column=4)
+            tk.Label(self, text="과목 3", font=("나눔고딕", 15, "bold")).grid(row=1, column=5)
+
+            tk.Label(self, text="학수번호", font=("나눔고딕", 15, "bold")).grid(row=2, column=0)
+            tk.Label(self, text="HALF0302", font=("나눔고딕", 15, "bold")).grid(row=2, column=1)
+            tk.Label(self, text="HALR1032", font=("나눔고딕", 15, "bold")).grid(row=2, column=3)
+            tk.Label(self, text="학수번호", font=("나눔고딕", 15, "bold")).grid(row=2, column=5)
+
+
+            tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
+            tk.Label(self, text="전체", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
+            tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
+            tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
+
+            tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
+            tk.Label(self, text="3", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
+            tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
+            tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
+
+            tk.Label(self, text="수업내용", height = master_height, font=("나눔고딕", 15, "bold")).grid(row=5, column=0)
+            tk.Label(self, text="본 교과목의 대표\n핵심 역량은'다양성\n존중 역량'이다.\n인문학의 원형인 신화를\n통해 다양한 학문과 예술,\n그리고 제반 문화 현상을\n살펴봄으로써, 다양성의\n가치를 존중하고\n자신과 다른 사람이나\n문화에 대해 배려하고\n존중하는 역량 함양을\n목표로 한다.", height=master_height, font=("나눔고딕", 11)).grid(row=5, column=1)
+            tk.Label(self, text="수업내용", height=master_height, font=("나눔고딕", 15, "bold")).grid(row=5, column=3)
+            tk.Label(self, text="수업내용", height=master_height, font=("나눔고딕", 15, "bold")).grid(row=5, column=5)
+
+            tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=6, column=random_list[0])
+            tk.Label(self, text="", font=("나눔고딕", 15, "bold")).grid(row=6, column=random_list[1])
+            tk.Label(self, text="", font=("나눔고딕", 15, "bold")).grid(row=6, column=random_list[2])
+
+        initial = 1
+
         global condition
         if condition:
             frame = cap.read()[1]
             frame = cv2.flip(frame, 1)
             eye_frame, coords = fd.pupil_coords(frame)
-            print("is looping? and checks the Conditions?")
+
             self.moveMouse(coords)
             self.clicker()
             self.after(100,self.getPupil)
 
     def clicker(self):
-        print("is ERD/ERS?")
+        import winsound
+        global iter
+        iter = iter + 1
+
+        if(iter == 60):
+            winsound.PlaySound("beep.wav", winsound.SND_FILENAME)
+            print("BEEP!")
+
+        if(iter > 120):
+            self.master.switch_frame(FailurePage)
         self.ERDERS()
         #if ERD/ERS() ==True : mouse.click
 
     def ERDERS(self):
         print("hello")
+
         # 마지막 x 행 만큼의 데이터를 불러옴
         latest_data = self.getData()
 
@@ -332,7 +317,6 @@ class MouseControlPage(tk.Frame):
         latest_data['beta12-40'] = 0
         for i in range(1, len(latest_data.columns) - 4):  # df.columns[i][:-2] -> 헤르츠 정보
             # 마지막 컬럼 세개가 mu,theta,beta 여서 그거 제외한거(-4)
-
             if float(latest_data.columns[i][:-2]) >= 8 and float(latest_data.columns[i][:-2]) < 12:  # 뮤파
                 latest_data['mu8-12'] += latest_data[latest_data.columns[i]]
             elif float(latest_data.columns[i][:-2]) >= 4 and float(latest_data.columns[i][:-2]) < 8:  # 세타파
@@ -355,17 +339,17 @@ class MouseControlPage(tk.Frame):
         ref_beta = df_clean[0:2].mean()[2]  # 앞에 3초 데이터
         after_beta = df_clean[2:4].mean()[2]  # 클릭 포함 데이터
         ratio_beta = (after_beta - ref_beta) / ref_beta
-
+        print(ratio_mu,ratio_beta, ratio_theta)
 
         #check threshhold
         if ratio_mu < 0 and ratio_theta < 0 and ratio_beta > 0:
             # 조건을 일단은 크게 mu는 감소, theta는 감소, beta는 증가하면 이걸 클릭으로 판단하겠다고 정해놓은것.
             # 보면서 조건이 수정되면 여기 값들을 바꿔주면 됨.
+            print('True')
             return True
-            # print('True')
         else:
+            print('False')
             return False
-            # print('False')
 
     def getData(self):
         path = 'C:/MAVE_RawData/'
@@ -377,7 +361,7 @@ class MouseControlPage(tk.Frame):
 
         print(file_list)
         # 보통 마지막 인덱스에 가장 최근 파일이 저장되어있음.
-        latest_file = file_list[len(file_list)-1]
+        latest_file = file_list[len(file_list)-2]
 
         data_list = os.listdir(path+latest_file+'/')
         data_path = path + latest_file + '/' + 'Fp1_FFT.txt'
@@ -389,6 +373,37 @@ class MouseControlPage(tk.Frame):
         latest_data = df.tail(4)
         return latest_data
 
+class FailurePage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+
+        global condition
+        global clicks
+        global initial
+
+        condition = False
+        clicks = 0
+        initial = 0
+
+        master_x = 20
+        master_y = 20
+        tk.Label(self, width = master_x, height= master_y, font=("나눔고딕", 50, "bold"),text="실패!").pack(side="top", fill= 'x',pady=50)
+
+class EndingPage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+
+        global condition
+        global clicks
+        global initial
+
+        condition = False
+        clicks = 0
+        initial = 0
+
+        master_x = 20
+        master_y = 20
+        tk.Label(self, width = master_x, height= master_y, font=("나눔고딕", 50, "bold"),text="성공!").pack(side="top", fill= 'x',pady=50)
 
 if __name__ == "__main__":
     app = SampleApp()

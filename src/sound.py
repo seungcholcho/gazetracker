@@ -9,12 +9,8 @@ start_time = datetime.datetime.now()
 
 # 클릭시간 저장할 배열.
 click_time=[]
-<<<<<<< HEAD
-f = open("./seungchol/0610/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
-=======
->>>>>>> 299352be9dc6afeacc35567a05ba602f0d363255
 
-f = open(str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
+f = open("./seungchol/0610/"+str(start_time.year)+"-"+str(start_time.month)+"-"+str(start_time.day)+" "+str(start_time.hour)+"."+str(start_time.minute)+".txt","wt")
 
 # 클릭했을 때 시간기록
 def timecheck():
@@ -62,7 +58,7 @@ for j in range(15):
         # label.place(x=350, y=50)  # 카운트
         tk.after(1000, countdown2sound)
 
-        button = Button(text="예매하기", bg='white', width=20, height=7, command=timecheck, font=("나눔고딕", 30, "bold"))
+        button = Button(text="클릭!", bg='white', width=20, height=7, command=timecheck, font=("나눔고딕", 30, "bold"))
         button.pack()
         button.place(x=150, y=150)  # 예매하기 버튼. 누르면 시간 기록.
 
