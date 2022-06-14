@@ -50,8 +50,8 @@ class SampleApp(tk.Tk):
                 # 4. CalibratingRight
                 # 5. MouseControlPage: 마우스 제어 페이지 // 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
 
-        self.switch_frame(StartPage)
-        #self.switch_frame(MouseControlPage)          #<<<< 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
+        #self.switch_frame(StartPage)
+        self.switch_frame(MouseControlPage)          #<<<< 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
         #self.switch_frame(EndingPage)
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -222,13 +222,13 @@ class MouseControlPage(tk.Frame):
         print(dist)
         if gazewhere == 0:
             print("looking left")
-            mouse.move(300, 660, absolute=True, duration=0.2)
+            mouse.move(200, 800, absolute=True, duration=0.2)
         elif gazewhere ==1:
             print("looking center")
-            mouse.move(960, 660, absolute=True, duration=0.2)
+            mouse.move(960, 800, absolute=True, duration=0.2)
         elif gazewhere ==2:
             print("looking right")
-            mouse.move(1800, 660, absolute=True, duration=0.2)
+            mouse.move(1800, 800, absolute=True, duration=0.2)
 
 
     def getPupil(self):
@@ -242,35 +242,37 @@ class MouseControlPage(tk.Frame):
 
         if clicks > 0:
             self.master.switch_frame(EndingPage)
+
         if initial == 0:
-            tk.Label(self, text="과목명", font=("나눔고딕", 15, "bold")).grid(row=1, column=0)
+            tk.Label(self, height = 5).grid(row = 0, column=0)
+            tk.Label(self, height =5,text="과목명", font=("나눔고딕", 15, "bold")).grid(row=1, column=0)
             tk.Label(self, width= 10).grid(row=1, column=0)
             tk.Label(self, text="세계신화의\n이해", font=("나눔고딕", 15, "bold")).grid(row=1, column=1)
             tk.Label(self, width = master_width-20).grid(row=1, column=2)
             tk.Label(self, text="사고와표현", font=("나눔고딕", 15, "bold")).grid(row=1, column=3)
-            tk.Label(self, width = master_width+15).grid(row=1, column=4)
-            tk.Label(self, text="과목 3", font=("나눔고딕", 15, "bold")).grid(row=1, column=5)
+            tk.Label(self, width = master_width).grid(row=1, column=4)
+            tk.Label(self, text="신경공학", font=("나눔고딕", 15, "bold")).grid(row=1, column=5)
 
             tk.Label(self, text="학수번호", font=("나눔고딕", 15, "bold")).grid(row=2, column=0)
             tk.Label(self, text="HALF0302", font=("나눔고딕", 15, "bold")).grid(row=2, column=1)
             tk.Label(self, text="HALR1032", font=("나눔고딕", 15, "bold")).grid(row=2, column=3)
-            tk.Label(self, text="학수번호", font=("나눔고딕", 15, "bold")).grid(row=2, column=5)
+            tk.Label(self, text="HAIE0019", font=("나눔고딕", 15, "bold")).grid(row=2, column=5)
 
 
             tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
-            tk.Label(self, text="전체", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
-            tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
-            tk.Label(self, text="학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=0)
+            tk.Label(self, text="전체", font=("나눔고딕", 15, "bold")).grid(row=3, column=1)
+            tk.Label(self, text="1학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=3)
+            tk.Label(self, text="3학년", font=("나눔고딕", 15, "bold")).grid(row=3, column=5)
 
             tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
-            tk.Label(self, text="3", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
-            tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
-            tk.Label(self, text="학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=0)
+            tk.Label(self, text="3학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=1)
+            tk.Label(self, text="3학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=3)
+            tk.Label(self, text="3학점", font=("나눔고딕", 15, "bold")).grid(row=4, column=5)
 
             tk.Label(self, text="수업내용", height = master_height, font=("나눔고딕", 15, "bold")).grid(row=5, column=0)
-            tk.Label(self, text="본 교과목의 대표\n핵심 역량은'다양성\n존중 역량'이다.\n인문학의 원형인 신화를\n통해 다양한 학문과 예술,\n그리고 제반 문화 현상을\n살펴봄으로써, 다양성의\n가치를 존중하고\n자신과 다른 사람이나\n문화에 대해 배려하고\n존중하는 역량 함양을\n목표로 한다.", height=master_height, font=("나눔고딕", 11)).grid(row=5, column=1)
-            tk.Label(self, text="수업내용", height=master_height, font=("나눔고딕", 15, "bold")).grid(row=5, column=3)
-            tk.Label(self, text="수업내용", height=master_height, font=("나눔고딕", 15, "bold")).grid(row=5, column=5)
+            tk.Label(self, text="본 교과목의 대표\n핵심 역량은'다양성\n존중 역량'이다.\n인문학의 원형인 신화를\n통해 다양한 학문과 예술,\n그리고 제반 문화 현상을\n살펴봄으로써, 다양성의\n가치를 존중하고\n자신과 다른 사람이나\n문화에 대해 배려하고\n존중하는 역량 함양을\n목표로 한다.", height=master_height, font=("나눔고딕", 13)).grid(row=5, column=1)
+            tk.Label(self, text="1. <사고와 표현>\n 수업에서는 학생들이\n현대 사회의 지식인,\n전문인으로서 필요한\n비판적 사고력과 표현력을\n갖출 수 있도록 한다.\n곧 주어진 정보를 있는\n그대로 수용하지 않고\n비판적으로 논리적으로\n사고하여 문제 해결에\n필요한 정보를 선별하는\n능력을 기르고, 목적에\n부합하는 올바른 형식과\n표현을 갖춘 글을\n쓸 수 있고 그것을\n말로 표현할 수 있는\n능력을 기르도록 한다.\n\n2. 본 교과목의 대표\n핵심역량은 전문지식 탐구\n역량으로 본 교과에서는\n전문적인 자료나 지식을\n조사하고 학습할 수\n있는 지식 습득, 지식의\n핵심 원리나 의미를\n명확히 이해할 수\n있는 지식 이해, 학습한\n지식을 글과 말로 표현할\n수 있는 지식 활동,\n수업에서 배운 지식을\n전공이나 사회문제를 해결하는\n데 활용할 수 있는 현실\n문제 적용 등의 역량을\n강화하고자 한다.", height=master_height, font=("나눔고딕", 13)).grid(row=5, column=3)
+            tk.Label(self, text="인공지능의 주가 되는\n인간의 뇌 정보처리를\n실증적으로 체험하고\n뇌-컴퓨터 인터페이스에\n기초한 휴먼지능시스템\n구현을 통한 인공지능의\n기초 및 응용지식 습득을\n목적으로 함.  ", height=master_height, font=("나눔고딕", 13)).grid(row=5, column=5)
 
             tk.Button(self, text="수강신청", font=("나눔고딕", 15, "bold"), command=lambda: self.click()).grid(row=6, column=random_list[0])
             tk.Label(self, text="", font=("나눔고딕", 15, "bold")).grid(row=6, column=random_list[1])
@@ -287,21 +289,26 @@ class MouseControlPage(tk.Frame):
             self.moveMouse(coords)
             self.clicker()
             self.after(100,self.getPupil)
-
+    brain_clicks = 0
     def clicker(self):
+
         import winsound
         global iter
         iter = iter + 1
 
-        if(iter == 60):
+        if(iter == 40):
             winsound.PlaySound("beep.wav", winsound.SND_FILENAME)
             print("BEEP!")
 
-        if(iter > 120):
+        if(iter > 80):
             self.master.switch_frame(FailurePage)
-        self.ERDERS()
-        #if ERD/ERS() ==True : mouse.click
 
+        if ERDERS() ==True :
+            global brain_clicks
+            mouse.click
+            brain_clicks = brain_clicks + 1
+            tk.Label(self, text = "1").grid(row=0, column = brain_clicks)
+            
     def ERDERS(self):
         print("hello")
 
