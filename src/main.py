@@ -50,8 +50,8 @@ class SampleApp(tk.Tk):
                 # 4. CalibratingRight
                 # 5. MouseControlPage: 마우스 제어 페이지 // 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
 
-        #self.switch_frame(StartPage)
-        self.switch_frame(MouseControlPage)          #<<<< 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
+        self.switch_frame(StartPage)
+        # self.switch_frame(MouseControlPage)          #<<<< 데이터 불러오기 잘 되는지 확인 하고 싶으면 self.switch_frame(MouseControlPage) 이용할 것.
         #self.switch_frame(EndingPage)
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -289,26 +289,27 @@ class MouseControlPage(tk.Frame):
             self.moveMouse(coords)
             self.clicker()
             self.after(100,self.getPupil)
-    brain_clicks = 0
+
+
     def clicker(self):
 
         import winsound
         global iter
         iter = iter + 1
 
-        if(iter == 40):
+        if(iter == 20):
             winsound.PlaySound("beep.wav", winsound.SND_FILENAME)
             print("BEEP!")
 
-        if(iter > 80):
+        if(iter > 40):
             self.master.switch_frame(FailurePage)
 
-        if ERDERS() ==True :
-            global brain_clicks
-            mouse.click
-            brain_clicks = brain_clicks + 1
-            tk.Label(self, text = "1").grid(row=0, column = brain_clicks)
-            
+        if self.ERDERS() ==True :
+            winsound.PlaySound("click.wav", winsound.SND_FILENAME)
+            print("BEEP!")
+            mouse.click()
+
+
     def ERDERS(self):
         print("hello")
 
@@ -368,7 +369,7 @@ class MouseControlPage(tk.Frame):
 
         print(file_list)
         # 보통 마지막 인덱스에 가장 최근 파일이 저장되어있음.
-        latest_file = file_list[len(file_list)-2]
+        latest_file = file_list[len(file_list)-1]
 
         data_list = os.listdir(path+latest_file+'/')
         data_path = path + latest_file + '/' + 'Fp1_FFT.txt'
