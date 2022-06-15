@@ -29,6 +29,16 @@
 ![image](https://user-images.githubusercontent.com/60168680/173657682-24ccb9a6-a407-407a-bef5-f2424abfa23b.png)
 ![image](https://user-images.githubusercontent.com/60168680/173657693-d02b700b-aabc-4295-8a17-2a92865d89fe.png)
 
+### 1) 세션별 클릭시점 앞뒤 5초 데이터 확인
+![image](https://user-images.githubusercontent.com/60168680/173711722-f4b7a123-9fc1-4a27-a9c8-2fc2b9d17ac0.png)
+![image](https://user-images.githubusercontent.com/60168680/173711919-2ae83927-7ceb-460c-a19c-92963efc1eed.png)
+### 2) Analysis time / interval setting
+![image](https://user-images.githubusercontent.com/60168680/173712489-71e8cc28-9a64-433a-b719-74061b79150f.png)
+### 3) beta/theta 주파수 세부적으로 확인
+-> beta/theta 영역에 대해 개인별 발현 주파수가 다를 수 있다고 해서 4hz단위, 2hz 단위로도 잘라서 확인해봤는데 최종적으로는 합쳐서 쓰는게 더 의미있다고 판단하여 beta는 12-40Hz, theta는 4-8Hz로 사용하였다.
+![image](https://user-images.githubusercontent.com/60168680/173712567-f5db55f3-dc9e-4dda-a0fe-bbdad54cfcfa.png)
+
+
 ## 3. 데이터셋
 1. MAVE에서 기록된 FFT된 데이터
 ![image](https://user-images.githubusercontent.com/60168680/173658866-684069ea-ccd4-41b2-92d3-b5ee68a0fe14.png)
@@ -38,4 +48,6 @@
 3. ERD/ERS 분석을 위해 Reference 대비 증감율을 기록. 
 <br>ex) ratio_mu가 -0.16일 경우 클릭 전보다 클릭후 뮤파 16% 감소.
 ![image](https://user-images.githubusercontent.com/60168680/173658344-7fae0f5d-1c32-4dd9-964e-e93705b5fffe.png)
+
+
 
